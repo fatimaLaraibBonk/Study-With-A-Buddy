@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyWithABuddy - Your Session</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #faf4ee; color: #333; }
+
+        /* ── NAVBAR ── */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; background-color: #faf4ee; border-bottom: 1.5px solid #000; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo img { height: 60px; width: auto; }
+        .logo-text { font-weight: bold; font-size: 24px; color: black; }
+        .nav-links { display: flex; align-items: center; list-style: none; gap: 25px; }
+        .nav-links a { text-decoration: none; color: black; font-weight: 500; font-size: 0.95rem; transition: transform 0.15s; display: inline-block; }
+        .nav-links a:hover { transform: translateY(-2px); }
+        .active-nav { background-color: #E69BFF; padding: 8px 15px; border: 1.5px solid #000; }
+        .active-nav:hover { box-shadow: 2px 2px 0 #000; }
+        .logout-icon { color: #d9534f; font-size: 22px; text-decoration: none; font-weight: bold; }
+        .notif-link { position: relative; display: inline-block; }
+        .notif-badge { position: absolute; top: -8px; right: -10px; background: #d9534f; color: white; font-size: 0.68rem; font-weight: bold; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; }
+
+        /* ── FLASH ── */
+        .flash-list { list-style: none; padding: 10px 50px 0; }
+        .flash-list li { padding: 10px 15px; margin-bottom: 6px; font-size: 0.88rem; }
+        .flash-list .success { background: #d4edda; color: #155724; border: 1.5px solid #000; }
+        .flash-list .error   { background: #f8d7da; color: #721c24; border: 1.5px solid #000; }
+
+        .container { padding: 30px 50px; }
+        h3 { margin-bottom: 12px; font-size: 1rem; }
+
+        /* ── Session box (user owns a slot) ── */
+        .session-box {
+            background-color: #dfe6b3;
+            border: 1.5px solid #000;
+            padding: 15px 15px 50px;
+            width: 380px;
+            position: relative;
+            margin-bottom: 30px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .session-box:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 #000; }
+        .session-box p { font-size: 0.9rem; margin-bottom: 4px; }
+
+        .delete-btn {
+            position: absolute; right: 10px; bottom: 10px;
+            background-color: #ff6b6b; border: 1.5px solid #000;
+            padding: 8px 12px; color: white; cursor: pointer;
+            font-size: 0.85rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .delete-btn:hover { background: #ee5253; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+
+        /* ── Joined slot box ── */
+        .joined-box {
+            background-color: #cce5ff;
+            border: 1.5px solid #000;
+            padding: 15px 15px 50px;
+            width: 380px;
+            position: relative;
+            margin-bottom: 30px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .joined-box:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 #000; }
+        .joined-box p { font-size: 0.9rem; margin-bottom: 4px; }
+
+        .leave-btn {
+            position: absolute; right: 10px; bottom: 10px;
+            background-color: #FFB366; border: 1.5px solid #000;
+            padding: 8px 12px; color: #333; cursor: pointer;
+            font-size: 0.85rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .leave-btn:hover { background: #f0a050; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+
+        /* ── No-slot message ── */
+        .no-slot-msg {
+            font-size: 0.9rem; color: #777;
+            background: #f0f0e8; border: 1.5px solid #000;
+            padding: 15px; width: 380px; margin-bottom: 30px;
+        }
+        .no-slot-msg a { color: #555; }
+
+        /* ── Person cards ── */
+        .people { margin-top: 10px; }
+        .person-card {
+            background-color: #cfe8b4;
+            border: 1.5px solid #000;
+            padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; max-width: 520px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .person-card:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 #000; }
+        .person-info { max-width: 70%; }
+        .person-info p { font-size: 0.88rem; margin-bottom: 3px; }
+        .buttons { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn {
+            border: 1.5px solid #000; padding: 6px 12px; cursor: pointer;
+            font-size: 0.83rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: none; transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 2px 2px 0 #000; filter: brightness(0.93); }
+        .btn-rate     { background-color: #E69BFF; }
+        .btn-befriend { background-color: #ffa64d; }
+        .btn-unfriend { background-color: #c97a2a; color: white; }
+        .btn-report   { background-color: #FF8080; }
+
+        .avatar { width: 70px; height: 70px; border-radius: 50%; background-color: #ddd; border: 1.5px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+
+        /* ── REPORT POPUP ── */
+        .report-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+        .report-overlay.open { display: flex; }
+        .report-card { width: 100%; max-width: 500px; background-color: #FFF5F7; border: 1.5px solid #000; box-shadow: 5px 5px 0 #000; padding: 30px; }
+        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .report-header h3 { font-size: 1rem; margin-bottom: 0; }
+        .report-header-btns { display: flex; gap: 8px; }
+        .icon-btn { background-color: #E69BFF; border: 1.5px solid #000; width: 32px; height: 32px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; }
+        .icon-btn:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .options-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        .option { background-color: #FFE5F7; border: 1.5px solid #000; padding: 16px; text-align: center; font-size: 0.95rem; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+        .option:hover { background-color: #fce0f3; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+        .option.selected { background-color: #E69BFF; border-color: #000; font-weight: bold; }
+        .actions-group { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .btn-primary { width: 100%; background-color: #E69BFF; border: 1.5px solid #000; padding: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+        .btn-primary:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+        /* ── RATE POPUP ── */
+        .rate-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+        .rate-overlay.open { display: flex; }
+        .rate-card { width: 100%; max-width: 420px; background-color: #fffdf0; border: 1.5px solid #000; box-shadow: 5px 5px 0 #000; padding: 30px; text-align: center; }
+        .rate-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .rate-header h3 { font-size: 1rem; margin-bottom: 0; }
+        .stars-row { display: flex; justify-content: center; gap: 10px; font-size: 2.5rem; margin-bottom: 25px; cursor: pointer; }
+        .star { color: #ddd; transition: color 0.15s; user-select: none; }
+        .star.active { color: #f5a623; }
+        .rate-submit { width: 100%; background-color: #E69BFF; border: 1.5px solid #000; padding: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+        .rate-submit:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+        .rate-label { font-size: 0.9rem; color: #777; margin-bottom: 15px; }
+
+        /* ── Hamburger ── */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+        .hamburger span { display: block; width: 24px; height: 2px; background: #333; transition: 0.2s; }
+
+        @media (max-width: 640px) {
+            .navbar { padding: 12px 16px; position: relative; }
+            .logo img { height: 42px; }
+            .logo-text { font-size: 18px; }
+            .hamburger { display: flex; }
+            .nav-links {
+                display: none; flex-direction: column;
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: #faf4ee; border-top: 1.5px solid #000;
+                border-bottom: 1.5px solid #000;
+                padding: 12px 20px; gap: 14px; z-index: 50;
+            }
+            .nav-links.open { display: flex; }
+            .flash-list { padding: 8px 16px 0; }
+            .container { padding: 20px 16px; }
+            /* Session and joined boxes — full width on mobile */
+            .session-box,
+            .joined-box,
+            .no-slot-msg { width: 100%; }
+            /* Person cards stack avatar below content */
+            .person-card { flex-direction: column; align-items: flex-start; gap: 12px; max-width: 100%; }
+            .avatar { align-self: flex-end; width: 54px; height: 54px; font-size: 1.4rem; margin-top: -54px; }
+            .buttons { flex-wrap: wrap; }
+            /* Report + rate popups */
+            .report-card,
+            .rate-card { margin: 0 12px; padding: 20px 16px; }
+            .stars-row { font-size: 2rem; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="logo" href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='login.png') }}" alt="StudyWithABuddy Logo">
+        <span class="logo-text">StudyWithABuddy</span>
+    </a>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li>
+            <a href="{{ url_for('notifications') }}" class="notif-link">
+                Notifications
+                {% if notif_count > 0 %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+            </a>
+        </li>
+        <li class="active-nav"><a href="{{ url_for('session_page') }}">Your Session</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('logout') }}" class="logout-icon">➔</a></li>
+    </ul>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-list">
+      {% for cat, msg in messages %}
+        <li class="{{ cat }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="container">
+
+    <h3>Your session:</h3>
+
+    {# ── Case 1: User owns a slot ── #}
+    {% if has_slot and my_slot %}
+    <div class="session-box">
+        <p><strong>Type:</strong> {{ my_slot.slot_type | capitalize }}</p>
+        <p><strong>Subject:</strong> {{ my_slot.subject_name }}</p>
+        <p><strong>Topics:</strong> {{ my_slot.topics | join(', ') }}</p>
+        <p><strong>Location:</strong> {{ my_slot.general_location }}</p>
+        <p><strong>Precise:</strong> {{ my_slot.precise_location }}</p>
+        <p><strong>Time Left:</strong> {{ my_slot.remaining_time }} min</p>
+        <form method="POST" action="{{ url_for('delete_slot', slot_id=my_slot.slot_id) }}">
+            <input type="hidden" name="redirect_to" value="session">
+            <button type="submit" class="delete-btn">Delete My Slot</button>
+        </form>
+    </div>
+
+    {# People who joined (accepted requests) #}
+    {% if accepted_buddies %}
+    <div class="people">
+        <h3>People with you:</h3>
+        {% for buddy in accepted_buddies %}
+        <div class="person-card">
+            <div class="person-info">
+                <p><strong>{{ buddy.name }} is studying with you</strong></p>
+                {% if buddy.rating_count > 0 %}
+                  <p>
+                    {% set r = buddy.rating | round(0,'floor') | int %}
+                    {% for i in range(1,6) %}
+                      <span style="color:{% if i<=r %}#f5a623{% else %}#ccc{% endif %}">★</span>
+                    {% endfor %}
+                    {{ buddy.rating_count }} reviews
+                  </p>
+                {% else %}
+                  <p>No reviews yet</p>
+                {% endif %}
+                <div class="buttons">
+                    <button class="btn btn-rate"
+                            onclick="openRate({{ buddy.user_id }}, '{{ buddy.name }}')">
+                        Rate
+                    </button>
+                    <form method="POST"
+                          action="{{ url_for('toggle_friend', other_id=buddy.user_id) }}"
+                          style="display:inline;">
+                        {% if buddy.user_id in friend_ids %}
+                          <button type="submit" class="btn btn-unfriend">Unfriend</button>
+                        {% else %}
+                          <button type="submit" class="btn btn-befriend">Befriend</button>
+                        {% endif %}
+                    </form>
+                    <button class="btn btn-report"
+                            onclick="openReport({{ buddy.user_id }}, '{{ buddy.name }}')">
+                        Report
+                    </button>
+                </div>
+            </div>
+            <div class="avatar">{{ buddy.avatar }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="font-size:0.88rem;color:#999;margin-top:8px;">
+        No one has joined your slot yet. Requests will appear in
+        <a href="{{ url_for('notifications') }}" style="color:#555;">Notifications</a>.
+    </p>
+    {% endif %}
+
+    {# ── Case 2: User joined someone else's slot ── #}
+    {% elif in_session and joined_slot %}
+    <div class="joined-box">
+        <p><strong>Owner:</strong> {{ joined_slot.owner_name }}</p>
+        <p><strong>Subject:</strong> {{ joined_slot.subject_name }}</p>
+        <p><strong>Topics:</strong> {{ joined_slot.topics | join(', ') if joined_slot.topics else '—' }}</p>
+        <p><strong>Location:</strong> {{ joined_slot.general_location }}</p>
+        <p><strong>Precise:</strong> {{ joined_slot.precise_location }}</p>
+        <p><strong>Time Left:</strong> {{ joined_slot.remaining_time }} min</p>
+        <form method="POST" action="{{ url_for('leave_slot') }}">
+            <button type="submit" class="leave-btn">Leave Session</button>
+        </form>
+    </div>
+
+    <div class="people">
+        <h3>Slot owner:</h3>
+        <div class="person-card">
+            <div class="person-info">
+                <p><strong>{{ joined_slot.owner_name }}'s slot</strong></p>
+                <p>{{ joined_slot.subject_name }} — {{ joined_slot.general_location }}</p>
+                <div class="buttons">
+                    <button class="btn btn-rate"
+                            onclick="openRate({{ joined_slot.owner_id }}, '{{ joined_slot.owner_name }}')">
+                        Rate
+                    </button>
+                    <form method="POST"
+                          action="{{ url_for('toggle_friend', other_id=joined_slot.owner_id) }}"
+                          style="display:inline;">
+                        {% if joined_slot.owner_id in friend_ids %}
+                          <button type="submit" class="btn btn-unfriend">Unfriend</button>
+                        {% else %}
+                          <button type="submit" class="btn btn-befriend">Befriend</button>
+                        {% endif %}
+                    </form>
+                    <button class="btn btn-report"
+                            onclick="openReport({{ joined_slot.owner_id }}, '{{ joined_slot.owner_name }}')">
+                        Report
+                    </button>
+                </div>
+            </div>
+            <div class="avatar">{{ joined_slot.owner_avatar }}</div>
+        </div>
+    </div>
+
+    {# ── Case 3: No active session ── #}
+    {% else %}
+    <div class="no-slot-msg">
+        You don't have an active session. Head to
+        <a href="{{ url_for('home') }}">Home</a>
+        to post a slot or request to join one.
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- REPORT POPUP -->
+<div class="report-overlay" id="reportOverlay">
+    <div class="report-card">
+        <div class="report-header">
+            <h3 id="reportTitle">Report User</h3>
+            <div class="report-header-btns">
+                <button class="icon-btn">i</button>
+                <button class="icon-btn" onclick="closeReport()">X</button>
+            </div>
+        </div>
+        <div class="options-group">
+            <button class="option" onclick="selectOption(this)">Harassment</button>
+            <button class="option" onclick="selectOption(this)">No Show</button>
+            <button class="option" onclick="selectOption(this)">Spammer</button>
+            <button class="option" onclick="selectOption(this)">Other</button>
+        </div>
+        <div class="actions-group">
+            <button class="btn-primary" onclick="submitReport(false)">Send Report</button>
+            <button class="btn-primary" onclick="submitReport(true)">Send Report to University</button>
+        </div>
+    </div>
+</div>
+
+<!-- RATE POPUP -->
+<div class="rate-overlay" id="rateOverlay">
+    <div class="rate-card">
+        <div class="rate-header">
+            <h3 id="rateTitle">Rate User</h3>
+            <div class="report-header-btns">
+                <button class="icon-btn" onclick="closeRate()">X</button>
+            </div>
+        </div>
+        <div class="rate-label">How was your study session?</div>
+        <div class="stars-row" id="starsRow">
+            <span class="star" data-val="1">★</span>
+            <span class="star" data-val="2">★</span>
+            <span class="star" data-val="3">★</span>
+            <span class="star" data-val="4">★</span>
+            <span class="star" data-val="5">★</span>
+        </div>
+        <button class="rate-submit" onclick="submitRate()">Submit Rating</button>
+    </div>
+</div>
+
+<!-- Hidden forms -->
+<form id="reportForm" method="POST" style="display:none;">
+    <input type="hidden" name="reason"        id="reportReason" value="Other">
+    <input type="hidden" name="to_university" id="reportToUni"  value="false">
+    <input type="hidden" name="redirect_to"   value="session">
+</form>
+
+<form id="rateForm" method="POST" style="display:none;">
+    <input type="hidden" name="stars" id="rateStars" value="0">
+</form>
+
+<script>
+    let currentRating  = 0;
+    let reportTargetId = null;
+    let rateTargetId   = null;
+
+    function openReport(userId, name) {
+        reportTargetId = userId;
+        document.getElementById('reportTitle').textContent = `Report User "${name}"`;
+        document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        document.getElementById('reportOverlay').classList.add('open');
+    }
+    function closeReport() { document.getElementById('reportOverlay').classList.remove('open'); }
+    function selectOption(el) {
+        document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+    function submitReport(toUni) {
+        if (!reportTargetId) { closeReport(); return; }
+        const selected = document.querySelector('.option.selected');
+        document.getElementById('reportReason').value = selected ? selected.textContent.trim() : 'Other';
+        document.getElementById('reportToUni').value  = toUni ? 'true' : 'false';
+        document.getElementById('reportForm').action  = `/report_user/${reportTargetId}`;
+        document.getElementById('reportForm').submit();
+    }
+
+    function openRate(userId, name) {
+        rateTargetId  = userId;
+        currentRating = 0;
+        document.getElementById('rateTitle').textContent = `Rate "${name}"`;
+        document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+        document.getElementById('rateOverlay').classList.add('open');
+    }
+    function closeRate() { document.getElementById('rateOverlay').classList.remove('open'); }
+
+    document.querySelectorAll('.star').forEach(star => {
+        star.addEventListener('mouseover', () => highlightStars(star.dataset.val));
+        star.addEventListener('mouseout',  () => highlightStars(currentRating));
+        star.addEventListener('click',     () => { currentRating = star.dataset.val; highlightStars(currentRating); });
+    });
+
+    function highlightStars(val) {
+        document.querySelectorAll('.star').forEach(s => {
+            s.classList.toggle('active', s.dataset.val <= val);
+        });
+    }
+
+    function submitRate() {
+        if (currentRating === 0) { alert('Please select a star rating first.'); return; }
+        document.getElementById('rateStars').value  = currentRating;
+        document.getElementById('rateForm').action  = `/rate_user/${rateTargetId}`;
+        document.getElementById('rateForm').submit();
+    }
+</script>
+
+<script>
+    function toggleNav() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(a => {
+        a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+    });
+</script>
+</body>

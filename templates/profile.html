@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyWithABuddy - Profile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #faf4ee; color: #333; }
+
+        /* ── NAVBAR ── */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; background-color: #faf4ee; border-bottom: 1.5px solid #000; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo img { height: 60px; width: auto; }
+        .logo-text { font-weight: bold; font-size: 24px; color: black; }
+        .nav-links { display: flex; align-items: center; list-style: none; gap: 25px; }
+        .nav-links a { text-decoration: none; color: black; font-weight: 500; font-size: 0.95rem; transition: transform 0.15s; display: inline-block; }
+        .nav-links a:hover { transform: translateY(-2px); }
+        .active-nav { background-color: #E69BFF; padding: 8px 15px; border: 1.5px solid #000; }
+        .active-nav:hover { box-shadow: 2px 2px 0 #000; }
+        .logout-icon { color: #d9534f; font-size: 22px; text-decoration: none; font-weight: bold; }
+        .notif-link { position: relative; display: inline-block; }
+        .notif-badge { position: absolute; top: -8px; right: -10px; background: #d9534f; color: white; font-size: 0.68rem; font-weight: bold; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; }
+
+        /* ── FLASH ── */
+        .flash-list { list-style: none; padding: 10px 50px 0; }
+        .flash-list li { padding: 10px 15px; margin-bottom: 6px; font-size: 0.88rem; }
+        .flash-list .success { background: #d4edda; color: #155724; border: 1.5px solid #000; }
+        .flash-list .error   { background: #f8d7da; color: #721c24; border: 1.5px solid #000; }
+
+        /* ── LAYOUT ── */
+        .page-wrap { display: grid; grid-template-columns: 320px 1fr; gap: 30px; max-width: 1100px; margin: 40px auto; padding: 0 30px 60px; align-items: start; }
+
+        /* ── LEFT PANEL ── */
+        .left-panel { display: flex; flex-direction: column; gap: 20px; }
+        .profile-card { background: #fff; border: 1.5px solid #000; padding: 30px 24px; text-align: center; transition: transform 0.15s, box-shadow 0.15s; }
+        .profile-card:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 #000; }
+
+        .avatar-wrap { position: relative; display: inline-block; cursor: pointer; }
+        .avatar { width: 140px; height: 140px; border-radius: 50%; background-color: #cdeac0; margin: auto; border: 1.5px solid #000; display: flex; align-items: center; justify-content: center; font-size: 4rem; transition: filter 0.2s; }
+        .avatar-wrap:hover .avatar { filter: brightness(0.85); }
+        .avatar-edit-hint { position: absolute; bottom: 4px; right: 4px; background: #E69BFF; border: 1.5px solid #000; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; }
+
+        .username { margin-top: 14px; font-size: 20px; font-weight: bold; }
+        .title-badge { display: inline-block; margin-top: 6px; padding: 3px 12px; font-size: 0.78rem; font-weight: 700; border: 1.5px solid #333; }
+        .reviews { margin-top: 8px; color: #333; font-size: 0.9rem; }
+
+        .primary-btn { margin-top: 18px; padding: 11px; width: 100%; border: 1.5px solid #000; background: #E69BFF; cursor: pointer; font-weight: bold; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.9rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .primary-btn:hover { background-color: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+        .form-section { margin-top: 20px; text-align: left; }
+        .form-section p { font-weight: bold; margin-bottom: 8px; font-size: 0.88rem; }
+        .form-section input { display: block; width: 100%; padding: 11px 14px; margin-bottom: 8px; border: 1.5px solid #000; background-color: #fce0f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.88rem; transition: box-shadow 0.15s; }
+        .form-section input:focus { box-shadow: 3px 3px 0 #000; outline: none; }
+        .save-pw-btn { width: 100%; padding: 10px; border: 1.5px solid #000; background: #fff; cursor: pointer; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.88rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .save-pw-btn:hover { background: #f5f5f5; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+
+        .delete-btn { margin-top: 14px; width: 100%; padding: 11px; border: 1.5px solid #000; background-color: #ff6b6b; color: white; font-weight: bold; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.9rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .delete-btn:hover { background-color: #ee5253; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel { display: flex; flex-direction: column; gap: 22px; }
+        .section-card { background: #fff; border: 1.5px solid #000; padding: 22px 24px; transition: transform 0.15s, box-shadow 0.15s; }
+        .section-card:hover { transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+        .section-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1.5px solid #eee; display: flex; align-items: center; gap: 8px; }
+
+        /* ── STATS ── */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .stat-box { border: 1.5px solid #000; padding: 14px 10px; text-align: center; background: #faf4ee; transition: transform 0.15s, box-shadow 0.15s; }
+        .stat-box:hover { transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .stat-num   { font-size: 1.5rem; font-weight: 800; color: #7B2D8B; }
+        .stat-label { font-size: 0.72rem; color: #777; margin-top: 2px; }
+
+        /* ── ACHIEVEMENTS ── */
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .achievement { border: 1.5px solid #ddd; padding: 14px 10px; text-align: center; background: #faf4ee; transition: transform 0.15s, box-shadow 0.15s; }
+        .achievement:hover { transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .achievement.unlocked { border-color: #E69BFF; background: #fdf0ff; }
+        .achievement.locked   { opacity: 0.42; filter: grayscale(1); }
+        .achievement-icon { font-size: 1.8rem; margin-bottom: 6px; }
+        .achievement-name { font-size: 0.75rem; font-weight: 700; margin-bottom: 3px; }
+        .achievement.unlocked .achievement-name { color: #7B2D8B; }
+        .achievement-desc { font-size: 0.68rem; color: #777; line-height: 1.3; }
+
+        /* ── FRIENDS ── */
+        .friends-list { display: flex; flex-direction: column; gap: 10px; }
+        .friend-card { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 1.5px solid #000; background: #faf4ee; transition: transform 0.15s, box-shadow 0.15s; }
+        .friend-card:hover { border-color: #E69BFF; background: #fdf0ff; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+        .friend-avatar { width: 50px; height: 50px; border-radius: 50%; background: #cdeac0; border: 1.5px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; flex-shrink: 0; transition: filter 0.18s; }
+        .friend-avatar:hover { filter: brightness(0.85); }
+        .friend-info { flex: 1; }
+        .friend-name { font-size: 0.9rem; font-weight: 700; }
+        .friend-meta { font-size: 0.78rem; color: #666; margin-top: 2px; }
+        .friend-rating { display: flex; align-items: center; gap: 3px; font-size: 0.78rem; color: #555; margin-top: 3px; }
+        .unfriend-btn { border: 1.5px solid #000; padding: 5px 12px; background: #fff; font-size: 0.78rem; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; white-space: nowrap; transition: transform 0.15s, box-shadow 0.15s; }
+        .unfriend-btn:hover { background: #fee; color: #d9534f; border-color: #d9534f; transform: translateY(-1px); box-shadow: 2px 2px 0 #000; }
+        .no-friends-msg { font-size: 0.88rem; color: #999; border: 1.5px dashed #000; padding: 24px; text-align: center; }
+
+        /* ── AVATAR PICKER ── */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(250,244,238,0.85); z-index: 100; align-items: center; justify-content: center; }
+        .overlay.open { display: flex; }
+        .avatar-picker { background: #fff; border: 1.5px solid #000; box-shadow: 5px 5px 0 #000; padding: 28px; width: 420px; max-width: 95vw; }
+        .picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .picker-header h3 { font-size: 0.95rem; font-weight: 700; }
+        .close-btn { background: #E69BFF; border: 1.5px solid #000; width: 30px; height: 30px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .close-btn:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .avatar-grid-picker { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 18px; }
+        .avatar-option { width: 100%; aspect-ratio: 1; border: 1.5px solid transparent; background: #faf4ee; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s; }
+        .avatar-option:hover    { border-color: #E69BFF; background: #fdf0ff; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .avatar-option.selected { border-color: #000; background: #E69BFF; }
+        .picker-save { width: 100%; padding: 11px; background: #E69BFF; border: 1.5px solid #000; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.9rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .picker-save:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+        /* ── USER PROFILE POPUP ── */
+        .profile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+        .profile-overlay.open { display: flex; }
+        .user-profile-card { background: #fff; border: 1.5px solid #000; box-shadow: 5px 5px 0 #000; padding: 32px; width: 360px; max-width: 95vw; text-align: center; }
+        .up-avatar { width: 100px; height: 100px; border-radius: 50%; background: #cdeac0; border: 1.5px solid #000; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 14px; }
+        .up-name  { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
+        .up-title { display: inline-block; padding: 3px 12px; font-size: 0.75rem; font-weight: 700; border: 1.5px solid #333; margin-bottom: 12px; }
+        .up-stars { font-size: 1.1rem; margin-bottom: 4px; }
+        .up-meta  { font-size: 0.82rem; color: #666; margin-bottom: 18px; line-height: 1.6; }
+        .up-close { width: 100%; padding: 10px; background: #E69BFF; border: 1.5px solid #000; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.9rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .up-close:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+
+        /* ── Hamburger ── */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+        .hamburger span { display: block; width: 24px; height: 2px; background: #333; transition: 0.2s; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 16px; position: relative; }
+            .logo-text { font-size: 18px; }
+            .logo img { height: 42px; }
+            .hamburger { display: flex; }
+            .nav-links {
+                display: none; flex-direction: column;
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: #faf4ee; border-top: 1.5px solid #000;
+                border-bottom: 1.5px solid #000;
+                padding: 12px 20px; gap: 14px; z-index: 50;
+            }
+            .nav-links.open { display: flex; }
+            .flash-list { padding: 10px 16px 0; }
+            .page-wrap { grid-template-columns: 1fr; gap: 20px; padding: 16px 16px 40px; margin: 16px auto; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .achievements-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .avatar { width: 110px; height: 110px; font-size: 3rem; }
+            .avatar-grid-picker { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+            .friend-card { flex-wrap: wrap; gap: 8px; }
+            .unfriend-btn { width: 100%; text-align: center; }
+            .avatar-grid-picker { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="logo" href="{{ url_for('home') }}">
+  <img src="{{ url_for('static', filename='login.png') }}" alt="StudyWithABuddy Logo">
+  <span class="logo-text">StudyWithABuddy</span>
+</a>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li>
+            <a href="{{ url_for('notifications') }}" class="notif-link">
+                Notifications
+                {% if notif_count > 0 %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+            </a>
+        </li>
+        <li><a href="{{ url_for('session_page') }}">Your Session</a></li>
+        <li class="active-nav"><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('logout') }}" class="logout-icon">➔</a></li>
+    </ul>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-list">
+      {% for cat, msg in messages %}
+        <li class="{{ cat }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="page-wrap">
+
+    <div class="left-panel">
+        <div class="profile-card">
+            <div class="avatar-wrap" onclick="openAvatarPicker()" title="Change avatar">
+                <div class="avatar" id="mainAvatar">{{ avatars[avatar_id] }}</div>
+                <div class="avatar-edit-hint">✏️</div>
+            </div>
+            <div class="username">{{ username }}</div>
+            <div class="title-badge" style="background:{{ title.bg }}; border-color:{{ title.border }};">{{ title.label }}</div>
+            <div class="reviews">
+                {% for i in range(1, 6) %}
+                    <span style="color:{% if i <= user_rating|round(0,'floor')|int %}#f5a623{% else %}#ccc{% endif %}">★</span>
+                {% endfor %}
+                &nbsp;{{ rating_count }} reviews
+            </div>
+            <form method="POST" action="{{ url_for('change_password') }}">
+                <div class="form-section">
+                    <p>Change Password:</p>
+                    <input type="password" name="current_password" placeholder="Current password" required>
+                    <input type="password" name="new_password"     placeholder="New password"     required>
+                    <input type="password" name="confirm_password" placeholder="Confirm new password" required>
+                    <button type="submit" class="save-pw-btn">Save Password</button>
+                </div>
+            </form>
+            <form method="POST" action="{{ url_for('delete_account') }}"
+                  onsubmit="return confirm('Are you sure? This cannot be undone.')">
+                <button type="submit" class="delete-btn">Delete My Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="section-card">
+            <div class="section-title">📊 Your Stats</div>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-num">{{ total_sessions }}</div>
+                    <div class="stat-label">Sessions</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ total_hours }}h</div>
+                    <div class="stat-label">Study Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ "%.1f"|format(user_rating) }}</div>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ friends|length }}</div>
+                    <div class="stat-label">Friends</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">🏆 Achievements</div>
+            <div class="achievements-grid">
+                {% for ach in achievements %}
+                <div class="achievement {{ 'unlocked' if ach.unlocked else 'locked' }}">
+                    <div class="achievement-icon">{{ ach.icon }}</div>
+                    <div class="achievement-name">{{ ach.name }}</div>
+                    <div class="achievement-desc">{{ ach.desc }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                👥 Study Buddies
+                <span style="font-size:0.8rem;font-weight:400;color:#999;">({{ friends|length }})</span>
+            </div>
+            {% if friends %}
+            <div class="friends-list">
+                {% for f in friends %}
+                <div class="friend-card" id="friend-{{ f.user_id }}">
+                    <div class="friend-avatar"
+                         onclick="window.location.href='/profile/{{ f.user_id }}'"
+                         title="View {{ f.name }}'s profile">
+                        {{ avatars[f.avatar_id] }}
+                    </div>
+                    <div class="friend-info">
+                        <div class="friend-name">{{ f.name }}</div>
+                        <div class="friend-meta">{{ f.sessions }} sessions together</div>
+                        <div class="friend-rating">
+                            {% for i in range(1, 6) %}
+                                <span style="color:{% if i <= f.rating|round(0,'floor')|int %}#f5a623{% else %}#ccc{% endif %}">★</span>
+                            {% endfor %}
+                            <span style="margin-left:4px;">{{ f.rating_count }} reviews</span>
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ url_for('toggle_friend', other_id=f.user_id) }}"
+                          style="display:inline;" onsubmit="return animateUnfriend(event, {{ f.user_id }})">
+                        <button type="submit" class="unfriend-btn">Unfriend</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-friends-msg">
+                No study buddies yet — join a session and start connecting!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="avatarOverlay">
+    <div class="avatar-picker">
+        <div class="picker-header">
+            <h3>Choose your avatar</h3>
+            <button class="close-btn" onclick="closeAvatarPicker()">X</button>
+        </div>
+        <form method="POST" action="{{ url_for('update_avatar') }}">
+            <input type="hidden" name="avatar_id" id="selectedAvatarInput" value="{{ avatar_id }}">
+            <div class="avatar-grid-picker">
+                {% for i, em in avatars.items() %}
+                <div class="avatar-option {% if i == avatar_id %}selected{% endif %}"
+                     onclick="selectAvatar({{ i }}, this)">
+                    {{ em }}
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="picker-save">Save Avatar</button>
+        </form>
+    </div>
+</div>
+
+<div class="profile-overlay" id="userProfileOverlay" onclick="if(event.target===this)closeUserProfile()">
+    <div class="user-profile-card">
+        <div class="up-avatar" id="upAvatar"></div>
+        <div class="up-name"   id="upName"></div>
+        <div class="up-title"  id="upTitle"></div>
+        <div class="up-stars"  id="upStars"></div>
+        <div class="up-meta"   id="upMeta"></div>
+        <button class="up-close" onclick="closeUserProfile()">Close</button>
+    </div>
+</div>
+
+<script>
+    const AVATARS = {{ avatars | tojson }};
+
+    function openAvatarPicker()  { document.getElementById('avatarOverlay').classList.add('open'); }
+    function closeAvatarPicker() { document.getElementById('avatarOverlay').classList.remove('open'); }
+
+    function selectAvatar(idx, el) {
+        document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('selectedAvatarInput').value = idx;
+        document.getElementById('mainAvatar').textContent = AVATARS[idx];
+    }
+
+    function getTitle(rating, sessions) {
+        if (sessions >= 50 && rating >= 4.8) return { label:'🌟 Legendary Buddy',    bg:'#FFD700', border:'#b8860b' };
+        if (sessions >= 30 && rating >= 4.5) return { label:'🏆 Elite Scholar',       bg:'#E69BFF', border:'#7B2D8B' };
+        if (sessions >= 20 && rating >= 4.2) return { label:'🔥 Study Machine',        bg:'#FFB366', border:'#c97a2a' };
+        if (sessions >= 10 && rating >= 3.8) return { label:'⭐ Professional Buddy',  bg:'#FFFFD1', border:'#999900' };
+        if (sessions >= 5)                   return { label:'📖 Rising Scholar',       bg:'#d4edda', border:'#155724' };
+        return                                      { label:'🌱 Newcomer',             bg:'#f0f0f0', border:'#aaa'   };
+    }
+
+    function starsHTML(rating) {
+        let s = '';
+        for (let i = 1; i <= 5; i++)
+            s += `<span style="color:${i <= Math.round(rating) ? '#f5a623' : '#ccc'}">★</span>`;
+        return s;
+    }
+
+    function openUserProfile(f) {
+        const t = getTitle(f.rating, f.sessions);
+        document.getElementById('upAvatar').textContent   = AVATARS[f.avatar_id] || '🧑';
+        document.getElementById('upName').textContent     = f.name;
+        document.getElementById('upTitle').textContent    = t.label;
+        document.getElementById('upTitle').style.background   = t.bg;
+        document.getElementById('upTitle').style.borderColor  = t.border;
+        document.getElementById('upStars').innerHTML      =
+            starsHTML(f.rating) + ` <span style="font-size:0.82rem;color:#777">${f.rating_count} reviews</span>`;
+        document.getElementById('upMeta').innerHTML       =
+            `Sessions together: <strong>${f.sessions}</strong>`;
+        document.getElementById('userProfileOverlay').classList.add('open');
+    }
+    function closeUserProfile() { document.getElementById('userProfileOverlay').classList.remove('open'); }
+
+    function animateUnfriend(e, userId) {
+        e.preventDefault();
+        const card = document.getElementById('friend-' + userId);
+        card.style.transition = 'opacity 0.3s';
+        card.style.opacity = '0';
+        setTimeout(() => e.target.submit(), 300);
+        return false;
+    }
+</script>
+
+<script>
+    function toggleNav() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(a => {
+        a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+    });
+</script>
+</body>
+</html>

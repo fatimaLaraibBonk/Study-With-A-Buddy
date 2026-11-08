@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyWithABuddy — Home</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #faf4ee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; color: #333; }
+
+    /* ── NAVBAR ── */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; background-color: #faf4ee; border-bottom: 1.5px solid #000; }
+    .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.logo img {
+  height: 60px;
+  width: auto;
+}
+.logo-text {
+  font-weight: bold;
+  font-size: 24px;
+  color: black;
+}
+    .nav-links { display: flex; align-items: center; list-style: none; gap: 25px; }
+    .nav-links a { text-decoration: none; color: black; font-weight: 500; font-size: 0.95rem; transition: transform 0.15s, box-shadow 0.15s; display: inline-block; }
+    .nav-links a:hover { transform: translateY(-2px); }
+    .active-nav { background-color: #E69BFF; padding: 8px 15px; border-radius: 0; border: 1.5px solid #000; }
+    .active-nav:hover { box-shadow: 2px 2px 0 #000; }
+    .logout-icon { color: #d9534f; font-size: 22px; text-decoration: none; font-weight: bold; }
+    .notif-link { position: relative; display: inline-block; }
+    .notif-badge { position: absolute; top: -8px; right: -10px; background: #d9534f; color: white; font-size: 0.68rem; font-weight: bold; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; }
+
+    /* ── FLASH MESSAGES ── */
+    .flash-list { list-style: none; padding: 10px 50px 0; }
+    .flash-list li { padding: 10px 15px; margin-bottom: 6px; font-size: 0.88rem; }
+    .flash-list .success { background: #d4edda; color: #155724; border: 1.5px solid #000; }
+    .flash-list .error   { background: #f8d7da; color: #721c24; border: 1.5px solid #000; }
+
+    /* ── MAIN ── */
+    main { padding: 1.5rem 50px 5rem; }
+
+    /* ── SEARCH ── */
+    .search-wrap { position: relative; max-width: 500px; margin: 0 auto 1.5rem; }
+    .search-wrap input { width: 100%; padding: 0.65rem 2.5rem 0.65rem 1rem; border: 1.5px solid #000; border-radius: 0; font-size: 0.9rem; background: #fff; outline: none; color: #444; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: box-shadow 0.15s; }
+    .search-wrap input:focus { box-shadow: 3px 3px 0 #000; }
+    .search-wrap input::placeholder { color: #aaa; }
+    .search-icon { position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.95rem; color: #888; pointer-events: none; }
+
+    /* ── MY SLOT BANNER ── */
+    .my-slot-banner { max-width: 520px; background: #f0f4c3; border: 1.5px solid #000; padding: 15px; margin-bottom: 1rem; position: relative; transition: transform 0.15s, box-shadow 0.15s; }
+    .my-slot-banner:hover { transform: translateY(-3px); box-shadow: 3px 3px 0 #000; }
+    .my-slot-banner strong { font-size: 0.92rem; display: block; margin-bottom: 0.35rem; }
+    .my-slot-banner .info-line { font-size: 0.85rem; color: #333; margin-bottom: 0.18rem; }
+    .banner-bottom { display: flex; justify-content: flex-end; margin-top: 0.6rem; }
+    .btn-delete { padding: 6px 12px; background-color: #ff6b6b; border: 1.5px solid #000; color: white; cursor: pointer; font-size: 0.85rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-delete:hover { background: #ee5253; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+
+    /* ── SECTION LABEL ── */
+    .section-label { font-size: 0.88rem; color: #333; margin-bottom: 1rem; }
+
+    /* ── SLOT CARDS ── */
+    .slots-list { display: flex; flex-direction: column; gap: 20px; max-width: 520px; }
+    .slot-card { background: #fff; border: 1.5px solid #000; padding: 15px; display: flex; justify-content: space-between; align-items: flex-start; transition: transform 0.15s, box-shadow 0.15s; }
+    .slot-card:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 #000; }
+    .slot-card.hidden { display: none; }
+    .slot-body { flex: 1; }
+    .slot-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .slot-line { font-size: 0.83rem; color: #444; margin-bottom: 0.18rem; }
+    .slot-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 0.6rem; }
+    .stars-row { display: flex; align-items: center; gap: 3px; font-size: 0.85rem; color: #ccc; }
+    .review-count { font-size: 0.8rem; color: #555; margin-left: 5px; }
+    .slot-actions { display: flex; gap: 8px; }
+    .btn-report { padding: 6px 15px; background-color: #FF8080; border: 1.5px solid #000; font-size: 0.82rem; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-report:hover { filter: brightness(0.92); transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+    .btn-request { padding: 6px 15px; background-color: #E69BFF; border: 1.5px solid #000; font-size: 0.82rem; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-request:hover:not(:disabled) { background: #d17ae0; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+    .btn-request:disabled { opacity: 0.55; cursor: not-allowed; background-color: #ddd; }
+    .slot-avatar { width: 70px; height: 70px; border-radius: 50%; background-color: #ddd; border: 1.5px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; margin-left: 15px; }
+    .tutor-badge { font-size: 0.75rem; color: #555; margin-top: 0.3rem; text-align: center; }
+    .my-slot-tag { font-size: 0.72rem; background: #E69BFF; border: 1.5px solid #000; padding: 2px 7px; display: inline-block; margin-bottom: 4px; }
+    .empty-state { font-size: 0.9rem; color: #888; padding: 2rem 0; display: none; }
+
+    /* ── FAB ── */
+    .fab { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.6rem 1rem; background: #fff; border: 1.5px solid #000; color: #333; font-size: 0.88rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+    .fab:hover:not(:disabled) { background: #fce0f9; transform: translateY(-3px); box-shadow: 3px 3px 0 #000; }
+    .fab:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── ADD SLOT OVERLAY ── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(250,244,238,0.75); z-index: 100; align-items: flex-start; justify-content: center; padding-top: 70px; }
+    .overlay.open { display: flex; }
+    .add-slot-panel { background: #fff; border: 1.5px solid #000; box-shadow: 5px 5px 0 #000; width: 820px; max-width: 95vw; padding: 1.5rem 2rem 1.8rem; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .panel-title { font-size: 0.95rem; font-weight: 700; }
+    .panel-btns { display: flex; gap: 0.4rem; }
+    .btn-info, .btn-close-panel { width: 34px; height: 34px; border: 1.5px solid #000; background: #E69BFF; color: #333; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-info:hover, .btn-close-panel:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+    .type-toggle { display: flex; gap: 0.6rem; justify-content: center; margin-bottom: 1.3rem; }
+    .btn-type { flex: 0 0 200px; padding: 0.75rem; background: #E69BFF; color: #333; border: 1.5px solid #000; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-type.unselected { opacity: 0.5; }
+    .btn-type:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+    .panel-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.2rem; margin-bottom: 1.3rem; }
+    .panel-input { width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid #000; font-size: 0.9rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; outline: none; transition: box-shadow 0.15s; }
+    .panel-input:focus { border-color: #000; box-shadow: 3px 3px 0 #000; }
+    .location-wrap { position: relative; }
+    .location-wrap input { width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid #000; font-size: 0.9rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; outline: none; transition: box-shadow 0.15s; }
+    .location-wrap input:focus { border-color: #000; box-shadow: 3px 3px 0 #000; }
+    .inner-label { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); font-size: 0.88rem; color: #aaa; pointer-events: none; transition: 0.15s; }
+    .location-wrap input:focus ~ .inner-label,
+    .location-wrap input:not(:placeholder-shown) ~ .inner-label { display: none; }
+    .panel-footer { display: flex; justify-content: center; }
+    .btn-add-slot { padding: 0.7rem 2.5rem; background: #E69BFF; border: 1.5px solid #000; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-add-slot:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+    /* ── REPORT OVERLAY ── */
+    .report-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+    .report-overlay.open { display: flex; }
+    .report-card { width: 100%; max-width: 500px; background-color: #FFF5F7; border: 1.5px solid #000; box-shadow: 5px 5px 0 #000; padding: 30px; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .report-header h3 { font-size: 1rem; }
+    .report-header-btns { display: flex; gap: 8px; }
+    .icon-btn { background-color: #E69BFF; border: 1.5px solid #000; width: 32px; height: 32px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; }
+    .icon-btn:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+    .options-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+    .option { background-color: #FFE5F7; border: 1.5px solid #000; padding: 16px; text-align: center; font-size: 0.95rem; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .option:hover { background-color: #fce0f3; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+    .option.selected { background-color: #E69BFF; border-color: #000; font-weight: bold; }
+    .actions-group { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .btn-primary { width: 100%; background-color: #E69BFF; border: 1.5px solid #000; padding: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-primary:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+    /* ── Hamburger ── */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: #333; transition: 0.2s; }
+
+    /* ── Mobile responsive ── */
+    @media (max-width: 640px) {
+      .navbar { padding: 12px 16px; position: relative; }
+      .logo img { height: 42px; }
+      .logo-text { font-size: 18px; }
+
+      .hamburger { display: flex; }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: #faf4ee;
+        border-top: 1.5px solid #000;
+        border-bottom: 1.5px solid #000;
+        padding: 12px 20px;
+        gap: 14px;
+        z-index: 50;
+      }
+      .nav-links.open { display: flex; }
+
+      main { padding: 1rem 16px 5rem; }
+      .flash-list { padding: 8px 16px 0; }
+
+      .search-wrap { max-width: 100%; }
+      .my-slot-banner { max-width: 100%; }
+      .slots-list { max-width: 100%; }
+
+      .slot-card { flex-direction: column; gap: 10px; }
+      .slot-avatar { width: 48px; height: 48px; font-size: 1.2rem; align-self: flex-end; margin-left: 0; margin-top: -48px; }
+      .slot-bottom { flex-wrap: wrap; gap: 8px; }
+      .slot-actions { flex-wrap: wrap; }
+
+      /* Add slot overlay — single column */
+      .add-slot-panel { padding: 1rem 1rem 1.2rem; }
+      .panel-fields { grid-template-columns: 1fr; }
+      .type-toggle { gap: 0.4rem; }
+      .btn-type { flex: 1; font-size: 0.9rem; padding: 0.6rem; }
+
+      /* Report overlay */
+      .report-card { padding: 20px 16px; margin: 0 12px; }
+
+      .fab { bottom: 1rem; right: 1rem; font-size: 0.82rem; padding: 0.5rem 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+  <a class="logo" href="{{ url_for('home') }}">
+  <img src="{{ url_for('static', filename='login.png') }}" alt="StudyWithABuddy Logo">
+  <span class="logo-text">StudyWithABuddy</span>
+</a>
+</div>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li class="active-nav"><a href="{{ url_for('home') }}">Home</a></li>
+      <li>
+        <a href="{{ url_for('notifications') }}" class="notif-link">
+          Notifications
+          {% if notif_count > 0 %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+        </a>
+      </li>
+      <li><a href="{{ url_for('session_page') }}">Your Session</a></li>
+      <li><a href="{{ url_for('profile') }}">Profile</a></li>
+      <li><a href="{{ url_for('logout') }}" class="logout-icon">➔</a></li>
+    </ul>
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash-list">
+        {% for cat, msg in messages %}
+          <li class="{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search for buddy or topics" oninput="handleSearch()" />
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <!-- My slot banner (only shown when user owns a slot) -->
+    {% if has_slot and my_slot %}
+    <div class="my-slot-banner">
+      <strong>You currently have a slot:</strong>
+      <div class="info-line">Topics: {{ my_slot.topics | join(', ') }}</div>
+      <div class="info-line">Location: {{ my_slot.general_location }}</div>
+      <div class="info-line">Time Left: {{ my_slot.remaining_time }} min</div>
+      <div class="banner-bottom">
+        <form method="POST" action="{{ url_for('delete_slot', slot_id=my_slot.slot_id) }}" style="display:inline;">
+          <input type="hidden" name="redirect_to" value="home">
+          <button type="submit" class="btn-delete">Delete My Slot</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="section-label" id="sectionLabel">People currently available:</div>
+    <div class="slots-list" id="slotsList">
+
+      {% for slot in slots %}
+        {% if not slot.is_mine %}
+        <div class="slot-card"
+             data-name="{{ slot.owner_name | lower }}"
+             data-subject="{{ slot.subject_name | lower }}"
+             data-location="{{ slot.general_location | lower }}"
+             data-topics="{{ slot.topics | join(' ') | lower }}">
+          <div class="slot-body">
+            <div class="slot-name">
+              {{ slot.owner_name }} is studying {{ slot.subject_name }} at {{ slot.general_location }}
+              {% if slot.slot_type == 'tutor' %}<span style="font-size:0.75rem;color:#555;margin-left:6px;">⭐ Tutor</span>{% endif %}
+            </div>
+            <div class="slot-line">Topics: {{ slot.topics | join(', ') }}</div>
+            <div class="slot-line">Time Left: {{ slot.remaining_time }} min</div>
+            <div class="slot-bottom">
+              <div class="stars-row">
+                {% set r = slot.user_rating | round(0, 'floor') | int %}
+                {% for i in range(1, 6) %}
+                  <span style="color:{% if i <= r %}#f5a623{% else %}#ccc{% endif %}">★</span>
+                {% endfor %}
+                <span class="review-count">{{ slot.rating_count }} reviews</span>
+              </div>
+              <div class="slot-actions">
+                <!-- Report button -->
+                <button class="btn-report"
+                        onclick="openReport({{ slot.owner_id }}, '{{ slot.owner_name }}')">
+                  Report
+                </button>
+
+                <!-- Request button — state depends on constraints -->
+                {% if in_session %}
+                  <button class="btn-request" disabled title="You are already in a session">In Session</button>
+                {% elif has_slot %}
+                  <button class="btn-request" disabled title="Delete your slot to send requests">Has Slot</button>
+                {% elif slot.req_status == 'pending' %}
+                  <button class="btn-request" disabled>Pending…</button>
+                {% elif slot.req_status == 'accepted' %}
+                  <button class="btn-request" disabled>Joined ✓</button>
+                {% elif slot.req_status == 'rejected' %}
+                  <button class="btn-request" disabled>Declined</button>
+                {% else %}
+                  <form method="POST" action="{{ url_for('request_slot', slot_id=slot.slot_id) }}" style="display:inline;">
+                    <button type="submit" class="btn-request">Request</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="slot-avatar">{{ slot.avatar }}</div>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+    <div class="empty-state" id="emptyState">No results found.</div>
+  </main>
+
+  <!-- FAB: disabled if user owns a slot OR is already in a session -->
+  <button class="fab"
+          onclick="openPanel()"
+          {% if has_slot or in_session %}disabled title="{% if has_slot %}Delete your slot first{% else %}Leave your session first{% endif %}"{% endif %}>
+    Add your slot
+  </button>
+
+  <!-- ADD SLOT OVERLAY -->
+  <div class="overlay" id="overlay">
+    <div class="add-slot-panel">
+      <div class="panel-header">
+        <div class="panel-title">Add your slot:</div>
+        <div class="panel-btns">
+          <button type="button" class="btn-info">i</button>
+          <button type="button" class="btn-close-panel" onclick="closePanel()">X</button>
+        </div>
+      </div>
+      <form method="POST" action="{{ url_for('post_slot') }}">
+        <input type="hidden" name="slot_type" id="slotTypeInput" value="buddy">
+        <div class="type-toggle">
+          <button type="button" class="btn-type" id="btnBuddy" onclick="selectType('buddy')">Buddy</button>
+          <button type="button" class="btn-type unselected" id="btnTutor" onclick="selectType('tutor')">Tutor</button>
+        </div>
+        <div class="panel-fields">
+          <input class="panel-input" type="text" name="subject_name"     placeholder="What Subjects?"          required />
+          <input class="panel-input" type="text" name="topics"           placeholder="What Topics? (comma-sep)" required />
+          <div class="location-wrap">
+            <input type="text" name="general_location" placeholder=" " required />
+            <span class="inner-label">Where? (General Location)</span>
+          </div>
+          <input class="panel-input" type="text" name="precise_location" placeholder="Where? (Precise Location)" required />
+          <input class="panel-input" type="number" name="remaining_time" placeholder="How Long? (minutes)"      required min="1" />
+        </div>
+        <div class="panel-footer">
+          <button type="submit" class="btn-add-slot">Add slot</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- REPORT OVERLAY -->
+  <div class="report-overlay" id="reportOverlay">
+    <div class="report-card">
+      <div class="report-header">
+        <h3 id="reportTitle">Report User</h3>
+        <div class="report-header-btns">
+          <button class="icon-btn">i</button>
+          <button class="icon-btn" onclick="closeReport()">X</button>
+        </div>
+      </div>
+      <div class="options-group">
+        <button class="option" onclick="selectOption(this)">Harassment</button>
+        <button class="option" onclick="selectOption(this)">No Show</button>
+        <button class="option" onclick="selectOption(this)">Spammer</button>
+        <button class="option" onclick="selectOption(this)">Other</button>
+      </div>
+      <div class="actions-group">
+        <button class="btn-primary" onclick="submitReport(false)">Send Report</button>
+        <button class="btn-primary" onclick="submitReport(true)">Send Report to University</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden report form -->
+  <form id="reportForm" method="POST" style="display:none;">
+    <input type="hidden" name="reason"        id="reportReason"       value="Other">
+    <input type="hidden" name="to_university" id="reportToUni"        value="false">
+    <input type="hidden" name="redirect_to"   value="home">
+  </form>
+
+  <script>
+    // ── Search ──────────────────────────────────────────
+    function handleSearch() {
+      const q     = document.getElementById('searchInput').value.trim().toLowerCase();
+      const cards = document.querySelectorAll('#slotsList .slot-card');
+      const label = document.getElementById('sectionLabel');
+      const empty = document.getElementById('emptyState');
+      let visible = 0;
+      cards.forEach(card => {
+        const match = !q ||
+          card.dataset.name.includes(q) ||
+          card.dataset.subject.includes(q) ||
+          card.dataset.location.includes(q) ||
+          card.dataset.topics.includes(q);
+        card.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      label.textContent = q ? `Results for "${q}":` : 'People currently available:';
+      empty.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    // ── Add Slot Panel ──────────────────────────────────
+    function openPanel()  { document.getElementById('overlay').classList.add('open'); }
+    function closePanel() { document.getElementById('overlay').classList.remove('open'); }
+
+    function selectType(type) {
+      document.getElementById('slotTypeInput').value = type;
+      document.getElementById('btnBuddy').classList.toggle('unselected', type !== 'buddy');
+      document.getElementById('btnTutor').classList.toggle('unselected', type !== 'tutor');
+    }
+
+    // ── Report ──────────────────────────────────────────
+    let reportTargetId = null;
+
+    function openReport(userId, name) {
+      reportTargetId = userId;
+      document.getElementById('reportTitle').textContent = `Report User "${name}"`;
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      document.getElementById('reportOverlay').classList.add('open');
+    }
+    function closeReport() { document.getElementById('reportOverlay').classList.remove('open'); }
+    function selectOption(el) {
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    function submitReport(toUni) {
+      const selected = document.querySelector('.option.selected');
+      const reason   = selected ? selected.textContent.trim() : 'Other';
+      const form     = document.getElementById('reportForm');
+      document.getElementById('reportReason').value = reason;
+      document.getElementById('reportToUni').value  = toUni ? 'true' : 'false';
+      form.action = `/report_user/${reportTargetId}`;
+      form.submit();
+    }
+  </script>
+  <script>
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+    // Close nav when a link is clicked
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+    });
+  </script>
+</body>
+</html>

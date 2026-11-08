@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyWithABuddy — Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #faf4ee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 1.4rem; margin-top: 0; }
+
+    /* ── Flash messages ── */
+    .flash-list { list-style: none; width: 100%; max-width: 500px; margin-bottom: 1rem; padding: 0 12px; }
+    .flash-list li { padding: 10px 15px; font-size: 0.88rem; margin-bottom: 6px; }
+    .flash-list .success { background: #d4edda; color: #155724; border: 1.5px solid #000; }
+    .flash-list .error   { background: #f8d7da; color: #721c24; border: 1.5px solid #000; }
+
+    /* ── Account-status banners ── */
+    .status-banner {
+      width: 100%;
+      max-width: 500px;
+      padding: 18px 22px;
+      margin-bottom: 1.2rem;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      border: 1.5px solid;
+    }
+    .status-banner.banned {
+      background: #1a0000;
+      border-color: #8b0000;
+      color: #ff6b6b;
+    }
+    .status-banner.banned strong { font-size: 1.05rem; display: block; margin-bottom: 4px; }
+    .status-banner.suspended {
+      background: #1c1600;
+      border-color: #b8860b;
+      color: #ffd966;
+    }
+    .status-banner.suspended strong { font-size: 1.05rem; display: block; margin-bottom: 4px; }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1.5px solid #000;
+      padding: 2rem 2.2rem;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; }
+
+    /* ── Inputs ── */
+    input.field {
+      display: block;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: #fce0f9;
+      border: 1.5px solid #000;
+      border-radius: 0;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #555;
+      outline: none;
+      margin-bottom: 0.8rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: box-shadow 0.15s;
+    }
+    input.field::placeholder { color: #888; }
+    input.field:focus { box-shadow: 3px 3px 0 #000; }
+
+    /* ── Password field — no grey box label, just a normal placeholder ── */
+    .password-wrap { position: relative; margin-bottom: 1.1rem; }
+    .password-wrap input {
+      display: block;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: #f7eef7;
+      border: 1.5px solid #000;
+      border-radius: 0;
+      font-size: 0.9rem;
+      outline: none;
+      color: #333;
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: box-shadow 0.15s;
+    }
+    .password-wrap input::placeholder { color: #888; }
+    .password-wrap input:focus { box-shadow: 3px 3px 0 #000; }
+
+    /* ── Alt link ── */
+    .alt-link {
+      text-align: center;
+      font-size: 0.88rem;
+      color: #333;
+      margin-bottom: 1.1rem;
+    }
+    .alt-link a { color: #e8933a; text-decoration: none; font-weight: 500; transition: transform 0.15s; display: inline-block; }
+    .alt-link a:hover { transform: translateY(-1px); }
+
+    /* ── Logo ── */
+    .logo {
+      width: 150px;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      display: block;
+      margin: 0 auto;
+      padding: 0.6rem 2.2rem;
+      background: #E69BFF;
+      color: #333;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1.5px solid #000;
+      border-radius: 0;
+      cursor: pointer;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-submit:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+    /* ── Splash screen (shown on successful login) ── */
+    #splash {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #faf4ee;
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    #splash.active { display: flex; }
+    #splash img {
+      width: 130px;
+    }
+
+    /* ── Jump animation ── */
+    @keyframes jump {
+      0%   { transform: translateY(0); }
+      25%  { transform: translateY(-30px); }
+      45%  { transform: translateY(0); }
+      65%  { transform: translateY(-18px); }
+      80%  { transform: translateY(0); }
+      90%  { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
+    .jump { animation: jump 0.75s ease forwards; }
+
+    /* ── Mobile responsive ── */
+    @media (max-width: 540px) {
+      body { padding: 1.5rem 12px; justify-content: flex-start; }
+      h1 { font-size: 1.4rem; }
+      .card { padding: 1.5rem 1.2rem; }
+      .flash-list { padding: 0; }
+      .status-banner { padding: 14px 16px; font-size: 0.88rem; }
+      .btn-submit { width: 100%; padding: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Splash screen overlay for successful login -->
+  <div id="splash">
+    <img id="splashLogo" src="{{url_for('static',filename='login.png')}}" alt="Logo"/>
+  </div>
+
+  <img src="{{url_for('static',filename='login.png')}}" class="logo"/>
+  <h1>StudyWithABuddy</h1>
+
+  {% if account_banned %}
+  <div class="status-banner banned">
+    <strong>🚫 This account has been banned.</strong>
+    Your account has been permanently banned from StudyWithABuddy due to repeated
+    violations of our community guidelines. If you believe this is a mistake,
+    please contact university management.
+  </div>
+  {% elif account_suspended %}
+  <div class="status-banner suspended">
+    <strong>⏸️ Your account is suspended.</strong>
+    You have been temporarily suspended for
+    <strong>{{ suspension_days }} day{{ 's' if suspension_days != 1 else '' }}</strong>
+    remaining. This is due to reports from other users. Your access will be restored
+    automatically once the suspension period ends.
+  </div>
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash-list">
+        {% for cat, msg in messages %}
+          <li class="{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  {% if not account_banned and not account_suspended %}
+  <div class="card">
+    <div class="card-title">Login:</div>
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <input class="field" type="email" name="email" placeholder="Email" required />
+
+      <div class="password-wrap">
+        <input type="password" name="password" placeholder="Password" required />
+      </div>
+
+      <div class="alt-link">
+        Don't have an account? <a href="{{ url_for('signup') }}">Sign Up.</a>
+      </div>
+
+      <button type="submit" class="btn-submit">Log in</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const loginSuccess = "{{ 'true' if login_success else 'false' }}" === "true";
+
+      if (loginSuccess) {
+        // Show the splash screen immediately, hiding the page behind it
+        const splash = document.getElementById("splash");
+        const splashLogo = document.getElementById("splashLogo");
+
+        splash.classList.add("active");
+
+        // Trigger the jump animation on the splash logo
+        splashLogo.classList.add("jump");
+
+        // After 1.6s, navigate to home
+        setTimeout(() => {
+          window.location.href = "{{ url_for('home') }}";
+        }, 1600);
+      }
+    });
+  </script>
+</body>
+</html>

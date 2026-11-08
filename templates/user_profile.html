@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyWithABuddy - {{ username }}'s Profile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #faf4ee; color: #333; }
+
+        /* ── NAVBAR ── */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; background-color: #faf4ee; border-bottom: 1.5px solid #000; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo img { height: 60px; width: auto; }
+        .logo-text { font-weight: bold; font-size: 24px; color: black; }
+        .nav-links { display: flex; align-items: center; list-style: none; gap: 25px; }
+        .nav-links a { text-decoration: none; color: black; font-weight: 500; font-size: 0.95rem; transition: transform 0.15s; display: inline-block; }
+        .nav-links a:hover { transform: translateY(-2px); }
+        .logout-icon { color: #d9534f; font-size: 22px; text-decoration: none; font-weight: bold; }
+        .notif-link { position: relative; display: inline-block; }
+        .notif-badge { position: absolute; top: -8px; right: -10px; background: #d9534f; color: white; font-size: 0.68rem; font-weight: bold; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000; }
+
+        /* ── FLASH ── */
+        .flash-list { list-style: none; padding: 10px 50px 0; }
+        .flash-list li { padding: 10px 15px; margin-bottom: 6px; font-size: 0.88rem; }
+        .flash-list .success { background: #d4edda; color: #155724; border: 1.5px solid #000; }
+        .flash-list .error   { background: #f8d7da; color: #721c24; border: 1.5px solid #000; }
+
+        /* ── LAYOUT ── */
+        .page-wrap { display: grid; grid-template-columns: 300px 1fr; gap: 30px; max-width: 1000px; margin: 40px auto; padding: 0 30px 60px; align-items: start; }
+
+        /* ── LEFT PANEL ── */
+        .left-panel { display: flex; flex-direction: column; gap: 20px; }
+        .profile-card { background: #fff; border: 1.5px solid #000; padding: 30px 24px; text-align: center; transition: transform 0.15s, box-shadow 0.15s; }
+        .profile-card:hover { transform: translateY(-3px); box-shadow: 4px 4px 0 #000; }
+
+        .avatar { width: 140px; height: 140px; border-radius: 50%; background-color: #cdeac0; margin: auto; border: 1.5px solid #000; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+
+        .username { margin-top: 14px; font-size: 20px; font-weight: bold; }
+        .title-badge { display: inline-block; margin-top: 6px; padding: 3px 12px; font-size: 0.78rem; font-weight: 700; border: 1.5px solid #333; }
+        .reviews { margin-top: 8px; color: #333; font-size: 0.9rem; }
+
+        .friend-btn { margin-top: 18px; padding: 11px; width: 100%; border: 1.5px solid #000; cursor: pointer; font-weight: bold; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.9rem; transition: transform 0.15s, box-shadow 0.15s; }
+        .friend-btn.add    { background: #E69BFF; }
+        .friend-btn.add:hover { background: #d17ae0; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+        .friend-btn.remove { background: #fff; color: #d9534f; border-color: #d9534f; }
+        .friend-btn.remove:hover { background: #fee; transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel { display: flex; flex-direction: column; gap: 22px; }
+        .section-card { background: #fff; border: 1.5px solid #000; padding: 22px 24px; transition: transform 0.15s, box-shadow 0.15s; }
+        .section-card:hover { transform: translateY(-2px); box-shadow: 3px 3px 0 #000; }
+        .section-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1.5px solid #eee; display: flex; align-items: center; gap: 8px; }
+
+        /* ── STATS ── */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .stat-box { border: 1.5px solid #000; padding: 14px 10px; text-align: center; background: #faf4ee; transition: transform 0.15s, box-shadow 0.15s; }
+        .stat-box:hover { transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .stat-num   { font-size: 1.5rem; font-weight: 800; color: #7B2D8B; }
+        .stat-label { font-size: 0.72rem; color: #777; margin-top: 2px; }
+
+        /* ── ACHIEVEMENTS ── */
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .achievement { border: 1.5px solid #ddd; padding: 14px 10px; text-align: center; background: #faf4ee; transition: transform 0.15s, box-shadow 0.15s; }
+        .achievement:hover { transform: translateY(-2px); box-shadow: 2px 2px 0 #000; }
+        .achievement.unlocked { border-color: #E69BFF; background: #fdf0ff; }
+        .achievement.locked   { opacity: 0.42; filter: grayscale(1); }
+        .achievement-icon { font-size: 1.8rem; margin-bottom: 6px; }
+        .achievement-name { font-size: 0.75rem; font-weight: 700; margin-bottom: 3px; }
+        .achievement.unlocked .achievement-name { color: #7B2D8B; }
+        .achievement-desc { font-size: 0.68rem; color: #777; line-height: 1.3; }
+
+
+        /* ── Hamburger ── */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+        .hamburger span { display: block; width: 24px; height: 2px; background: #333; transition: 0.2s; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 16px; position: relative; }
+            .logo-text { font-size: 18px; }
+            .logo img { height: 42px; }
+            .hamburger { display: flex; }
+            .nav-links {
+                display: none; flex-direction: column;
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: #faf4ee; border-top: 1.5px solid #000;
+                border-bottom: 1.5px solid #000;
+                padding: 12px 20px; gap: 14px; z-index: 50;
+            }
+            .nav-links.open { display: flex; }
+            .flash-list { padding: 10px 16px 0; }
+            .page-wrap { grid-template-columns: 1fr; gap: 20px; padding: 16px 16px 40px; margin: 16px auto; }
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+            .achievements-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .avatar { width: 110px; height: 110px; font-size: 3rem; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="logo" href="{{ url_for('home') }}">
+  <img src="{{ url_for('static', filename='login.png') }}" alt="StudyWithABuddy Logo">
+  <span class="logo-text">StudyWithABuddy</span>
+</a>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li>
+            <a href="{{ url_for('notifications') }}" class="notif-link">
+                Notifications
+                {% if notif_count > 0 %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+            </a>
+        </li>
+        <li><a href="{{ url_for('session_page') }}">Your Session</a></li>
+        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('logout') }}" class="logout-icon">➔</a></li>
+    </ul>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-list">
+      {% for cat, msg in messages %}
+        <li class="{{ cat }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="page-wrap">
+
+    <div class="left-panel">
+        <div class="profile-card">
+            <div class="avatar">{{ avatars[avatar_id] }}</div>
+            <div class="username">{{ username }}</div>
+            <div class="title-badge" style="background:{{ title.bg }}; border-color:{{ title.border }};">{{ title.label }}</div>
+            <div class="reviews">
+                {% for i in range(1, 6) %}
+                    <span style="color:{% if i <= user_rating|round(0,'floor')|int %}#f5a623{% else %}#ccc{% endif %}">★</span>
+                {% endfor %}
+                &nbsp;{{ rating_count }} reviews
+            </div>
+            <form method="POST" action="{{ url_for('toggle_friend', other_id=user.user_id) }}">
+                {% if is_friend %}
+                    <button type="submit" class="friend-btn remove">Remove Study Buddy</button>
+                {% else %}
+                    <button type="submit" class="friend-btn add">+ Add Study Buddy</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="section-card">
+            <div class="section-title">📊 Stats</div>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-num">{{ total_sessions }}</div>
+                    <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ "%.1f"|format(user_rating) }}</div>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ slots_posted }}</div>
+                    <div class="stat-label">Slots Posted</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">🏆 Achievements</div>
+            <div class="achievements-grid">
+                {% for ach in achievements %}
+                <div class="achievement {{ 'unlocked' if ach.unlocked else 'locked' }}">
+                    <div class="achievement-icon">{{ ach.icon }}</div>
+                    <div class="achievement-name">{{ ach.name }}</div>
+                    <div class="achievement-desc">{{ ach.desc }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function toggleNav() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(a => {
+        a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+    });
+</script>
+
+</body>
+</html>

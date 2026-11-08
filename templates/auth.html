@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study With A Buddy</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+/* Layer 1: mosaic — slightly blurred */
+#mosaic-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    filter: blur(3px);
+    transform: scale(1.05); /* hides blur edges */
+}
+
+/* Layer 2: soft white wash */
+#mosaic-wash {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    background: rgba(255,255,255,0.62);
+    pointer-events: none;
+}
+
+/* Layer 3: floating emojis */
+#float-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+}
+.floater {
+    position: absolute;
+    opacity: 0;
+    animation: floatUp linear infinite;
+    user-select: none;
+}
+@keyframes floatUp {
+    0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0;    }
+    8%   {                                               opacity: 0.5;  }
+    92%  {                                               opacity: 0.5;  }
+    100% { transform: translateY(-15vh) rotate(20deg);  opacity: 0;    }
+}
+
+/* wrapper */
+.wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    z-index: 3;
+    width: 100%;
+}
+
+/* card — bigger */
+.container {
+    position: relative;
+    z-index: 4;
+    background: white;
+    padding: 36px 40px;
+    border-color: black;
+    border:1.5px solid black;
+    width: 420px;
+    max-width: 100%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+}
+
+h1 { text-align: center; color: #333; margin-top: 0; font-size: 1.6rem; }
+h3 { color: #333; margin-bottom: 14px; }
+
+input[type=text], input[type=email], input[type=password] {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 8px 0;
+    border-radius: 7px;
+    border: 1.5px solid #ccc;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border-color 0.2s;
+}
+input[type=text]:focus,
+input[type=email]:focus,
+input[type=password]:focus {
+    border-color: #b4461d;
+    outline: none;
+    background: white;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #e8a9ea;
+    border: none;
+    color: black;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+}
+button:hover { background: #8f3516; }
+
+.switch { text-align: center; margin-top: 12px; font-size: 14px; color: #666; }
+a { color: #b4461d; cursor: pointer; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.form { display: none; }
+.active { display: block; }
+
+.flash {
+    padding: 9px 13px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+.flash.error   { background: #fdecea; border: 1px solid #f5c6c6; color: #b4461d; }
+.flash.success { background: #edfbf3; border: 1px solid #b7eacb; color: #2e7d52; }
+
+/* verify */
+#verifyForm h3 { text-align: center; }
+.verify-subtext { text-align: center; color: #666; font-size: 13px; margin: 4px 0 18px; }
+.code-boxes { display: flex; justify-content: center; gap: 10px; margin: 14px 0; }
+.code-boxes input {
+    width: 48px; height: 56px;
+    text-align: center; font-size: 22px; font-weight: bold;
+    border: 2px solid #ccc; border-radius: 8px; padding: 0; margin: 0;
+    transition: border-color 0.2s; background: white;
+}
+.code-boxes input:focus { border-color: #b4461d; outline: none; }
+.timer { text-align: center; font-size: 13px; color: #888; margin-bottom: 14px; }
+.timer span { font-weight: bold; color: #b4461d; }
+.timer.expired span { color: #999; }
+.resend-link { display: none; text-align: center; margin-top: 8px; font-size: 13px; }
+
+/* peek windows — big enough not to clip characters */
+.peek-window {
+    position: absolute;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+}
+.pixel {
+    display: block;
+    transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+    will-change: transform;
+}
+.pixel img {
+    width: 72px;
+    image-rendering: pixelated;
+    display: block;
+    filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.35));
+}
+
+/* left */
+.pw1 { right: calc(50% + 210px); top: 70px; width: 90px; height: 120px; }
+.pw1 .pixel { transform: translateX(90px) rotate(15deg); transform-origin: bottom right; }
+.wrapper:hover .pw1 .pixel { transform: translateX(10px) rotate(-10deg); transform-origin: bottom right; }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.logo img {
+  height: 60px;
+  width: auto;
+}
+.logo-text {
+  font-weight: bold;
+  font-size: 24px;
+  color: black;
+}
+/* right */
+.pw2 { left: calc(50% + 210px); top: 90px; width: 90px; height: 120px; }
+.pw2 .pixel { transform: translateX(-90px) rotate(-15deg); transform-origin: bottom left; }
+.wrapper:hover .pw2 .pixel { transform: translateX(-10px) rotate(10deg); transform-origin: bottom left; }
+
+/* bottom-center — pops from BEHIND the card, z-index lower than card */
+.pw3 { left: calc(50% - 36px); bottom: 10px; width: 90px; height: 90px; z-index: 1; }
+.pw3 .pixel { transform: translateY(90px); transform-origin: top center; }
+.wrapper:hover .pw3 .pixel { transform: translateY(-10px) rotate(-6deg); transform-origin: top center; }
+
+/* page title — outside the card */
+.page-title {
+    position: absolute;
+    top: -52px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #440505;
+    font-family: 'Roboto', sans-serif;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 520px) {
+    .wrapper { padding: 70px 12px 30px; align-items: flex-start; min-height: 100vh; }
+    .container { padding: 28px 20px; width: 100%; }
+    .page-title { font-size: 1.3rem; top: -42px; }
+    /* Hide peek characters on small screens */
+    .pw1, .pw2, .pw3 { display: none; }
+    .code-boxes input { width: 38px; height: 48px; font-size: 18px; }
+    h1 { font-size: 1.3rem; }
+    h3 { font-size: 1rem; }
+    button { font-size: 15px; padding: 11px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="mosaic-bg"></canvas>
+<div id="mosaic-wash"></div>
+<div id="float-bg"></div>
+<a class="logo" href="{{ url_for('home') }}">
+  <img src="{{ url_for('static', filename='login.png') }}" alt="StudyWithABuddy Logo">
+  <span class="logo-text">StudyWithABuddy</span>
+</a>
+<div class="wrapper">
+
+    <!-- Peek characters -->
+    <div class="peek-window pw1"><div class="pixel"><img src="{{ url_for('static', filename='img1.png') }}" alt="" onerror="this.parentElement.parentElement.style.display='none'"></div></div>
+    <div class="peek-window pw2"><div class="pixel"><img src="{{ url_for('static', filename='img2.png') }}" alt="" onerror="this.parentElement.parentElement.style.display='none'"></div></div>
+    <div class="peek-window pw3"><div class="pixel"><img src="{{ url_for('static', filename='img3.png') }}" alt="" onerror="this.parentElement.parentElement.style.display='none'"></div></div>
+
+    <div class="container">
+
+        <div class="page-title">Study With A Buddy</div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+
+        <!-- LOGIN -->
+        <div id="loginForm" class="form active">
+            <h3>Login</h3>
+            <form method="POST" action="/login">
+                <input type="text" name="email" placeholder="Email (without @isb.nu.edu.pk)">
+                <input type="password" name="password" placeholder="Password">
+                <button type="submit">Login</button>
+            </form>
+            <div class="switch">Don't have an account? <a onclick="showSignup()">Sign Up</a></div>
+        </div>
+
+        <!-- SIGNUP -->
+        <div id="signupForm" class="form">
+            <h3>Sign Up</h3>
+            <form method="POST" action="/signup">
+                <input type="text" name="username" placeholder="Username">
+                <input type="text" name="email" placeholder="Email (without @isb.nu.edu.pk)">
+                <input type="password" name="password" placeholder="Password (min 8 characters)">
+                <label style="display:flex;align-items:center;gap:8px;margin:10px 0;font-size:14px;color:#555;">
+                    <input type="checkbox" style="width:auto;margin:0;" required>
+                    I agree to the <a href="/terms" target="_blank" style="margin-left:4px;">Terms and Conditions</a>
+                </label>
+                <button type="submit">Create Account</button>
+            </form>
+            <div class="switch">Already have an account? <a onclick="showLogin()">Login</a></div>
+        </div>
+
+        <!-- VERIFY -->
+        <div id="verifyForm" class="form">
+            <h3>Check your email</h3>
+            <p class="verify-subtext">We sent a 6-digit code to <strong>{{ pending_email_prefix }}@isb.nu.edu.pk</strong>.<br>Enter it below to verify your account.</p>
+            <form method="POST" action="/verify" onsubmit="assembleCode()">
+                <div class="code-boxes">
+                    <input type="text" maxlength="1" class="code-input">
+                    <input type="text" maxlength="1" class="code-input">
+                    <input type="text" maxlength="1" class="code-input">
+                    <input type="text" maxlength="1" class="code-input">
+                    <input type="text" maxlength="1" class="code-input">
+                    <input type="text" maxlength="1" class="code-input">
+                </div>
+                <input type="hidden" name="code" id="code-hidden">
+                <div class="timer" id="timer">Code expires in <span id="countdown">2:00</span></div>
+                <div class="resend-link" id="resendLink">Didn't get a code? <a onclick="resendCode()">Resend</a></div>
+                <button type="submit">Verify</button>
+            </form>
+            <div class="switch"><a onclick="showSignup()">← Back to Sign Up</a></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ── Pixel art characters (no image files needed) ──────────
+// Each character: 8 cols × 13 rows, pixel size = 6px → 48×78 canvas
+const P = 6; // pixel size
+
+// Color palettes per character
+// 0=transparent, 1=skin, 2=hair, 3=shirt, 4=pants, 5=shoes, 6=detail
+const CHARS = [
+  { // Bookworm — dark hair, purple shirt, glasses
+    pal: [null, '#FFCBA4', '#2C1810', '#7C4DFF', '#1A237E', '#212121', '#888888'],
+    px: [
+      [0,0,2,2,2,2,0,0],
+      [0,2,2,2,2,2,2,0],
+      [0,2,1,1,1,1,2,0],
+      [0,2,6,1,6,1,2,0],
+      [0,2,1,6,1,1,2,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,3,3,3,3,0,0],
+      [0,3,3,3,3,3,3,0],
+      [0,3,3,3,3,3,3,0],
+      [0,3,3,3,3,3,3,0],
+      [0,0,4,0,0,4,0,0],
+      [0,0,4,0,0,4,0,0],
+      [0,0,5,0,0,5,0,0],
+    ]
+  },
+  { // Sporty — blonde hair, red shirt
+    pal: [null, '#FFCBA4', '#FFD740', '#F44336', '#1B5E20', '#212121', '#FF8A65'],
+    px: [
+      [0,0,2,2,2,2,0,0],
+      [0,2,2,2,2,2,2,0],
+      [0,2,1,1,1,1,2,0],
+      [0,2,1,1,1,1,2,0],
+      [0,2,1,6,6,1,2,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,3,3,3,3,0,0],
+      [0,3,3,3,3,3,3,0],
+      [3,3,3,3,3,3,3,3],
+      [0,3,3,3,3,3,3,0],
+      [0,0,4,0,0,4,0,0],
+      [0,0,4,0,0,4,0,0],
+      [0,0,5,0,0,5,0,0],
+    ]
+  },
+  { // Artist — pink hair, teal shirt
+    pal: [null, '#FFCBA4', '#F06292', '#00BCD4', '#4A148C', '#212121', '#FF8A65'],
+    px: [
+      [0,2,2,2,2,2,2,0],
+      [2,2,2,2,2,2,2,2],
+      [2,2,1,1,1,1,2,2],
+      [0,2,1,1,1,1,2,0],
+      [0,2,1,6,1,6,2,0],
+      [0,0,1,1,1,1,0,0],
+      [0,0,3,3,3,3,0,0],
+      [0,3,3,3,3,3,3,0],
+      [0,3,3,3,3,3,3,0],
+      [0,3,3,3,3,3,3,0],
+      [0,0,4,0,0,4,0,0],
+      [0,0,4,0,0,4,0,0],
+      [0,0,5,0,0,5,0,0],
+    ]
+  }
+];
+
+function drawChar(canvasId, charDef) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    charDef.px.forEach((row, r) => {
+        row.forEach((colorIdx, c) => {
+            if (colorIdx === 0) return;
+            ctx.fillStyle = charDef.pal[colorIdx];
+            ctx.fillRect(c * P, r * P, P, P);
+        });
+    });
+}
+
+// ── Floating emojis ───────────────────────────────────────
+function spawnFloaters() {
+    const bg = document.getElementById('float-bg');
+    const icons = ['✏️','📚','💻','📐','📝','🖊️','📓','🎨','📏','🔬','💡','📌','🖋️','📖','🗒️'];
+    for (let i = 0; i < 20; i++) {
+        const el = document.createElement('div');
+        el.className = 'floater';
+        el.textContent = icons[Math.floor(Math.random() * icons.length)];
+        el.style.fontSize  = (1.1 + Math.random() * 1.6) + 'rem';
+        el.style.left      = (Math.random() * 100) + 'vw';
+        el.style.animationDuration = (14 + Math.random() * 16) + 's';
+        el.style.animationDelay    = (-Math.random() * 25) + 's';
+        bg.appendChild(el);
+    }
+}
+
+// ── Mosaic background ─────────────────────────────────────
+(function () {
+    const canvas = document.getElementById('mosaic-bg');
+    const ctx = canvas.getContext('2d');
+    const COLS = 14, ROWS = 10;
+    let W, H, triW, triH, tris = [];
+
+    const palette = [
+        [255,235,245],[206,137,223],[232,114,183],
+        [255,150,200],[223,86,152],[240,100,160],
+        [223,50,76],  [200,80,200],[180,40,120],
+    ];
+    const rc = () => palette[Math.floor(Math.random() * palette.length)];
+
+    function build() {
+        tris = [];
+        triW = W / COLS; triH = H / ROWS;
+        for (let r = 0; r < ROWS; r++)
+            for (let c = 0; c < COLS; c++) {
+                const x = c*triW, y = r*triH;
+                tris.push({ pts:[[x,y],[x+triW,y],[x,y+triH]],         color:rc() });
+                tris.push({ pts:[[x+triW,y],[x+triW,y+triH],[x,y+triH]], color:rc() });
+            }
+    }
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+        tris.forEach(t => {
+            const c = t.color;
+            ctx.beginPath();
+            ctx.moveTo(t.pts[0][0],t.pts[0][1]);
+            ctx.lineTo(t.pts[1][0],t.pts[1][1]);
+            ctx.lineTo(t.pts[2][0],t.pts[2][1]);
+            ctx.closePath();
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        });
+    }
+    function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        build(); draw();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+})();
+
+// ── Forms ─────────────────────────────────────────────────
+let timerInterval = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+    spawnFloaters();
+    const showVerify = {{ 'true' if show_verify else 'false' }};
+    if (showVerify) showVerifyPanel();
+});
+
+function showSignup() {
+    document.getElementById("loginForm").classList.remove("active");
+    document.getElementById("verifyForm").classList.remove("active");
+    document.getElementById("signupForm").classList.add("active");
+}
+function showLogin() {
+    document.getElementById("signupForm").classList.remove("active");
+    document.getElementById("verifyForm").classList.remove("active");
+    document.getElementById("loginForm").classList.add("active");
+    stopTimer();
+}
+function showVerifyPanel() {
+    document.getElementById("signupForm").classList.remove("active");
+    document.getElementById("loginForm").classList.remove("active");
+    document.getElementById("verifyForm").classList.add("active");
+    startTimer(120);
+    document.querySelector(".code-input").focus();
+}
+function startTimer(seconds) {
+    stopTimer();
+    document.getElementById("resendLink").style.display = "none";
+    const timerEl = document.getElementById("timer");
+    const countdown = document.getElementById("countdown");
+    timerEl.classList.remove("expired");
+    let remaining = seconds;
+    function tick() {
+        const m = Math.floor(remaining / 60), s = remaining % 60;
+        countdown.textContent = m + ":" + String(s).padStart(2,"0");
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            countdown.textContent = "expired";
+            timerEl.classList.add("expired");
+            document.getElementById("resendLink").style.display = "block";
+        }
+        remaining--;
+    }
+    tick();
+    timerInterval = setInterval(tick, 1000);
+}
+function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+function resendCode() {
+    startTimer(120);
+    document.querySelectorAll(".code-input").forEach(i => i.value = "");
+    document.querySelector(".code-input").focus();
+}
+function assembleCode() {
+    document.getElementById('code-hidden').value =
+        [...document.querySelectorAll(".code-input")].map(i => i.value).join("");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const boxes = document.querySelectorAll(".code-input");
+    boxes.forEach((box, i) => {
+        box.addEventListener("input", () => {
+            box.value = box.value.replace(/[^0-9]/g,"").slice(0,1);
+            if (box.value && i < boxes.length-1) boxes[i+1].focus();
+        });
+        box.addEventListener("keydown", e => {
+            if (e.key==="Backspace" && !box.value && i>0) boxes[i-1].focus();
+        });
+        box.addEventListener("paste", e => {
+            e.preventDefault();
+            const p = e.clipboardData.getData("text").replace(/\D/g,"").slice(0,6);
+            [...p].forEach((ch,j) => { if (boxes[i+j]) boxes[i+j].value = ch; });
+            boxes[Math.min(i+p.length, boxes.length-1)].focus();
+        });
+    });
+});
+</script>
+</body>
+</html>
